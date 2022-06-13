@@ -6,6 +6,7 @@
       - npm
     state: latest
     update_cache: yes
+  register: dependency_output
 
 - name: install pm2
   become: true
@@ -14,3 +15,10 @@
     global: yes
     production: yes
     state: present 
+  register: npm_output
+
+- name: Show execution output
+  debug:
+    msg:
+      - dependency stdout -> {{ dependency_output.stdout }}
+      - npm stdout -> {{ npm_output.stdout }}
