@@ -1,29 +1,16 @@
-- name: Copy zipped artifact to EC2 instance and Unzip
-  ansible.builtin.copy:
-    src: ../../artifact.tar.gz
-    dest: "{{ application_directory }}"
-  tags:
-    - prereqs
+- name: install dependencies
+  become: true
+  package:
+    name:
+      - nodejs
+      - npm
+    state: latest
+    update_cache: yes
 
-- name: Install npm modules
-  community.general.npm:
-    path: "{{ application_directory }}"
-  tags:
-    - npm
-    - setup
-
-- name: Stop default app
-  command: pm2 stop default
-  args:
-    chdir: "{{ application_directory }}"
-  tags:
-    - npm
-    - stop_default
-
-- name: Start our app
-  command: pm2 start npm -- start
-  args:
-    chdir: "{{ application_directory }}"
-  tags:
-    - npm
-    - start_app
+- name: install pm2
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present 
