@@ -16,9 +16,3 @@
     production: yes
     state: present 
   register: npm_output
-
-- name: Show execution output
-  debug:
-    msg:
-      - dependency stdout -> {{ dependency_output.stdout }}
-      - npm stdout -> {{ npm_output.stdout }}
