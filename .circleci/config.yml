@@ -1,5 +1,40 @@
 version: 2.1
+orbs:
+  node: circleci/node@5.0.2
+  slack: circleci/slack@4.1
+
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+
 jobs:
+
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Build frontend
+          command: |
+            cd frontend
+            npm install
+            npm run build
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -29,6 +64,7 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm audit fix
             npm audit --audit-level=critical
 
   scan-backend:
@@ -45,22 +81,162 @@ jobs:
             npm install
             npm audit --audit-level=critical
 
-  build-frontend:
+  deploy-infrastructure:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
       - run:
-          name: Build front-end
+          name: Install pre-reqs
+          command: |
+            yum install -y gzip tar
+      - run:
+          name: Create backend infra
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
+      - run:
+          name: Create frontend infra
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
+   
+      - run:
+          name: Add backend ip to ansible inventory
+          command: |
+            touch inventory.txt
+            echo [web] > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure      
+
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["d6:ce:95:d0:62:22:aa:3f:0f:f7:c8:32:d1:b8:b9:17"] # You can get this ID in the section where you registered the SSH Key
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure  
+
+  run-migrations:
+    docker:
+    # previous docker version 13.8.0 
+      - image: circleci/node:14.18.1 
+    steps:
+      - checkout
+      - run: node --version
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+
+      - run:
+          name: Send migration results to kvdb.io
+          command: |
+              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+              then
+                  curl https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
+              fi
+     # Here's where you will add some code to rollback on failure 
+
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI (amazon/aws-cli)
+      - image: circleci/node:14.18.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run: 
+          name: Install dependencies
+          # install aws cli: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
           command: |
             cd frontend
             npm install
+            npm --version
             npm run build
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp ~/project/frontend/dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
+
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment
+
+  deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["d6:ce:95:d0:62:22:aa:3f:0f:f7:c8:32:d1:b8:b9:17"]
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            apk add --update ansible npm nodejs
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      # Here's where you will add some code to rollback on failure 
 
   test-backend:
     docker:
@@ -90,6 +266,19 @@ jobs:
             npm install
             npm run test
 
+  deploy-slack:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          command: npm run deploy
+      - slack/notify:
+          channel: udacity-devops-engineer-training
+          event: fail
+          template: basic_fail_1
+
 workflows:
   default:
     jobs:
@@ -103,3 +292,17 @@ workflows:
           requires: [test-frontend]
       - scan-backend:
           requires: [test-backend]
+      - deploy-infrastructure
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]  
+      - deploy-backend:
+          requires: [run-migrations]       
+
+
+  deploy_and_notify:
+    jobs:
+      - deploy-slack
