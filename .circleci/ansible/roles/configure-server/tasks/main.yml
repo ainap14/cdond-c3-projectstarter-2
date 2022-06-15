@@ -1,0 +1,5 @@
+- name: Copy backend app
+  copy:
+    src: ../../backend
+    dest: /home/ubuntu
+    directory_mode: yes
