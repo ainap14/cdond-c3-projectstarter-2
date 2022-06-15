@@ -3,3 +3,6 @@
     src: ../../backend
     dest: /home/ubuntu
     directory_mode: yes
+
+- name: Start app
+  shell: cd /home/ubuntu; npm run start
