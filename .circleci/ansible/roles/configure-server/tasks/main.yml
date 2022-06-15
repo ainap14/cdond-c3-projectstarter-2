@@ -2,7 +2,17 @@
   copy:
     src: ../../backend
     dest: /home/ubuntu
+    owner: ubuntu
+    group: ubuntu
+    mode: '0750'
     directory_mode: yes
 
+- name: Install dependencies for npm
+  shell: npm i
+  args:
+    chdir: /home/ubuntu/backend
+
 - name: Start app
-  shell: cd /home/ubuntu; npm run start
+  shell: npm run start
+  args:
+    chdir: /home/ubuntu/backend
