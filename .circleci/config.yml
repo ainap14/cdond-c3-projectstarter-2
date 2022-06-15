@@ -241,14 +241,16 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:14.18.1
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible npm nodejs
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
