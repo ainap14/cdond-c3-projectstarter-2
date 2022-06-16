@@ -8,8 +8,7 @@
     directory_mode: yes
 
 - name: Install dependencies for npm
-  shell:  |
-    pm2 stop default
+  shell: npm i
   args:
     chdir: /home/ubuntu/backend
 
