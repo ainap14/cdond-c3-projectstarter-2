@@ -7,10 +7,11 @@
     mode: '0750'
     directory_mode: yes
 
-- name: "upgrade packages."
-    become: true
-    apt:
-      upgrade: "yes"
+- name: "update packages"
+  become: true
+  apt:
+    upgrade: yes
+
 
 - name: Install dependencies for npm
   shell: npm i
