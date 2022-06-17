@@ -228,6 +228,8 @@ jobs:
           command: |
             # your code here
             apk add --update ansible npm nodejs
+            apk update pip3
+            pip3 install awscli
       - run:
           name: Deploy backend
           command: |
