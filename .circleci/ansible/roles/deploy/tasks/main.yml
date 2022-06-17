@@ -26,7 +26,8 @@
   become: true
   shell: |
     cd /home/ubuntu/backend
-    npm install express@13.8.0
-    
+    npm install -g n
+    n 13.8.0
+
 
 
