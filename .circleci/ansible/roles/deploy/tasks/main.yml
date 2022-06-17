@@ -17,10 +17,13 @@
     state: present 
   register: npm_output
 
-- name: chane backend folder permissions
+- name: install npm & chnage to 13.8.0 version
   become: true
   shell: |
-  chown -R ubuntu:ubuntu /home/ubuntu/backend
+    cd /home/ubuntu/backend
+    npm install -g n
+    n 13.8.0
+    chown -R ubuntu:ubuntu /home/ubuntu/backend
 
 
 
