@@ -17,3 +17,15 @@
     state: present 
   register: npm_output
 
+- name: chane backend folder permissions
+  become: true
+  shell: |
+  chown -R ubuntu:ubuntu /home/ubuntu/backend
+
+- name: update nmp to version 13.8.0
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm install express@13.8.0
+
+
