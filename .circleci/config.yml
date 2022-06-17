@@ -208,8 +208,8 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp ~/project/frontend/dist/ s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
 
-        # Here's where you will add some code to rollback on failure 
-        - destroy-environment
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment
 
   deploy-backend:
     docker:
@@ -240,8 +240,8 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-        # Here's where you will add some code to rollback on failure
-        - destroy-environment
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
   smoke-test:
     docker:
