@@ -17,7 +17,6 @@
       apt:
         upgrade: "yes"
 
-
   pre_tasks:
     - name: "wait 600 seconds for target connection to become reachable/usable."
       wait_for_connection:
