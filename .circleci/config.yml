@@ -8,8 +8,7 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
-      workflow_id:
-        type: string   
+      workflow_id:   
     steps:
       - run:
           name: Destroy environments
@@ -143,7 +142,7 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            apk add --update ansible
+            apk add --update ansible 
       - run:
           name: Configure server
           command: |
