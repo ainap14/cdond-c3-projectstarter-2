@@ -7,11 +7,23 @@
     mode: '0750'
     directory_mode: yes
 
+- name: "upgrade packages."
+    become: true
+    apt:
+      upgrade: "yes"
+
 - name: Install dependencies for npm
   shell: npm i
   args:
     chdir: /home/ubuntu/backend
 
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
 
 - name: Start app
   shell: pm2 start npm -- run start
