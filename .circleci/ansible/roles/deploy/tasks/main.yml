@@ -3,7 +3,7 @@
   package:
     name:
       - nodejs
-      - npm
+      - npm -g -v 13.8.0
     state: latest
     update_cache: yes
   register: dependency_output
