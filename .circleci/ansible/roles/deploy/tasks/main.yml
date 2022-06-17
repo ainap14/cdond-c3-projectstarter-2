@@ -3,10 +3,16 @@
   package:
     name:
       - nodejs
-      - npm
+      #- npm
     state: latest
     update_cache: yes
   register: dependency_output
+
+- name: install v 13.8.0 of npm
+  become: true
+  shell: |
+  npm install -g n
+  n 13.8.0
 
 - name: install pm2
   become: true
