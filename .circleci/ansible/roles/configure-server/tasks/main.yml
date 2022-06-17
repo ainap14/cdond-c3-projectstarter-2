@@ -12,6 +12,7 @@
   args:
     chdir: /home/ubuntu/backend
 
+
 - name: Start app
   shell: pm2 start npm -- run start
   args:
