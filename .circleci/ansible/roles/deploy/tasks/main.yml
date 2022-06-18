@@ -7,7 +7,6 @@
     group: ubuntu
     mode: '0755'
     directory_mode: yes
-  no_output_timeout: 30m
 
 #- name: Change folder permissions
 #  become: true
