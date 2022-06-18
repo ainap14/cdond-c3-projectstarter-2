@@ -5,32 +5,32 @@
     dest: /home/ubuntu
     owner: ubuntu
     group: ubuntu
-    mode: '0750'
+    mode: '0755'
     directory_mode: yes
 
-- name: Change folder permissions
-  become: true
-  shell: |
-    chown -R ubuntu:ubuntu /home/ubuntu/backend
+#- name: Change folder permissions
+#  become: true
+#  shell: |
+#    chown -R ubuntu:ubuntu /home/ubuntu/backend
 
-- name: "to update the apt packages"
-  become: true
-  apt:
-    update_cache: yes
+#- name: to update the apt packages
+#  become: true
+#  apt:
+#    update_cache: yes
 
-- name: "upgrade packages"
-  become: true
-  apt:
-    upgrade: yes
+#- name: upgrade packages
+#  become: true
+#  apt:
+#    upgrade: yes
 
-- name: "install dependencies."
+- name: install dependencies
   become: true
   apt:
     name: ["nodejs", "npm"]
     state: latest
     update_cache: yes
 
-- name: "install pm2"
+- name: install pm2
   become: true
   npm:
     name: pm2
