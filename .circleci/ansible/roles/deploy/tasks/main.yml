@@ -5,7 +5,7 @@
     dest: /home/ubuntu
     owner: ubuntu
     group: ubuntu
-    mode: '0755'
+    mode: '0750'
     directory_mode: yes
 
 #- name: Change folder permissions
