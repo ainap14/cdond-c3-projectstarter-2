@@ -1,42 +1,11 @@
-- name: install dependencies
-  become: true
-  package:
-    name:
-      - nodejs
-      - npm
-    state: latest
-    update_cache: yes
-  register: dependency_output
+- name: unarchive backend files
+  unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/
 
-- name: install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present 
-  register: npm_output
-
-- name: configure ec2 for nmp run and install
-  become: true
+- name: start app
   shell: |
-    cd /home/ubuntu/backend
-    npm outdated --parseable --depth=0 | cut -d: -f4 | xargs npm install
-    apt install 6.14.4+ds-1ubuntu2
-    npm audit fix --force
-    rm -rf node_modules package-lock.json && npm install && npm start
-
-
-- name: install and build package
-  shell: |
-    cd /home/ubuntu/backend
-    npm install
-    npm run build
-
-- name: Start pm2
-  shell: |
-    cd /home/ubuntu/backend 
+    cd /home/ubuntu/backend/dist
     pm2 stop default
-    pm2 start npm --name backend -- start
-
-
+    pm2 start npm --name 'udapeople' -- start
+    pm2 ls
