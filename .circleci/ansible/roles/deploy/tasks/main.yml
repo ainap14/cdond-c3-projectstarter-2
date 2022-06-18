@@ -1,4 +1,5 @@
 - name: Copy backend app
+  become: true
   copy:
     src: ../../backend
     dest: /home/ubuntu
@@ -6,6 +7,11 @@
     group: ubuntu
     mode: '0750'
     directory_mode: yes
+
+-name: Change folder permissions
+  become: true
+  shell: |
+    chown -R ubuntu:ubuntu /home/ubuntu/backend
 
 - name: "to update the apt packages"
   become: true
