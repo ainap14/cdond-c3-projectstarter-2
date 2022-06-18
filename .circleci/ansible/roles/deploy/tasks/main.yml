@@ -20,12 +20,21 @@
 - name: configure ec2 for nmp run and install
   become: true
   shell: |
-    cd /home/ubuntu/backend
-    npm outdated --parseable --depth=0 | cut -d: -f4 | xargs npm install
-    apt install 6.14.4+ds-1ubuntu2
-    npm audit fix
-    npm run start
+    #chown -R ubuntu:ubuntu /home/ubuntu/backend
+    #cd /home/ubuntu/backend
+    #npm outdated --parseable --depth=0 | cut -d: -f4 | xargs npm install
+    #apt install 6.14.4+ds-1ubuntu2
+    #npm audit fix
+    #npm run start
+
     chown -R ubuntu:ubuntu /home/ubuntu/backend
+    cd /home/ubuntu/backend
+    npm install
+    npm audit fix 
+    pm2 stop default
+    pm2 start npm -- start
+    cd dist
+    pm2 start main.js --update-env
 
 - name: install and build package
   shell: |
