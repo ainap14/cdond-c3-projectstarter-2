@@ -7,7 +7,9 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter heres 
+      # Add parameter here
+    docker:
+      - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environments
@@ -288,7 +290,8 @@ jobs:
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-            if curl "${API_URL}/api/status" | grep -q "ok"
+            # if curl "${API_URL}/api/status" | grep -q "ok"
+            if echo "${API_URL}/api/status" | grep -q "ok"
             then
               exit 0
             else
