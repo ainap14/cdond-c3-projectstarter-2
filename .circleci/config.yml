@@ -8,8 +8,10 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
-    docker:
-      - image: amazon/aws-cli
+      workflow_id:
+        type: string 
+    # docker:
+    #   - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environments
