@@ -7,10 +7,10 @@
 #     mode: '0750'
 #     directory_mode: yes
 
-# - name: "to update the apt packages"
-#   become: true
-#   apt:
-#     update_cache: yes
+- name: "to update the apt packages"
+  become: true
+  apt:
+    update_cache: yes
 
 # - name: upgrade packages
 #   become: true
