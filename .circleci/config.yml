@@ -32,7 +32,7 @@ commands:
             then
               cd ~/project/backend
               npm i
-              npm run migration:revert
+              npm run migrations:revert
             fi
 
 
