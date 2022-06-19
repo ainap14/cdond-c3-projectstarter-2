@@ -72,5 +72,3 @@
   shell: pm2 start npm --name backend -- run start
   args:
     chdir: "{{ installation_directory }}"
-
-    # apt list --upgradable
