@@ -12,6 +12,14 @@
     state: latest
     update_cache: yes
 
+- name: copy packahe.json to /home/ubuntu directory
+  copy:
+    src: ../../backend/package.json
+    dest: /home/ubuntu
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
 - name: install pm2
   become: True
   npm:
@@ -28,6 +36,7 @@
     state: present
 
 - name: start app
+  become: true
   shell: |
     cd /home/ubuntu/backend/dist
     pm2 stop default
