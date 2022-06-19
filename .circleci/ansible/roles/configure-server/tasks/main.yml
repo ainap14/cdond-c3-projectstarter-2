@@ -1,21 +1,21 @@
-- name: Copy backend app
-  copy:
-    src: ../../backend
-    dest: /home/ubuntu
-    owner: ubuntu
-    group: ubuntu
-    mode: '0750'
-    directory_mode: yes
+# - name: Copy backend app
+#   copy:
+#     src: ../../backend
+#     dest: /home/ubuntu
+#     owner: ubuntu
+#     group: ubuntu
+#     mode: '0750'
+#     directory_mode: yes
 
-- name: "to update the apt packages"
-  become: true
-  apt:
-    update_cache: yes
+# - name: "to update the apt packages"
+#   become: true
+#   apt:
+#     update_cache: yes
 
-- name: "upgrade packages"
-  become: true
-  apt:
-    upgrade: yes
+# - name: "upgrade packages"
+#   become: true
+#   apt:
+#     upgrade: yes
 
 - name: "install dependencies."
   become: true
@@ -32,7 +32,7 @@
     production: yes
     state: present
 
-- name: Start app
-  shell: pm2 start npm -- run start
-  args:
-    chdir: /home/ubuntu/backend
+# - name: Start app
+#   shell: pm2 start npm -- run start
+#   args:
+#     chdir: /home/ubuntu/backend
