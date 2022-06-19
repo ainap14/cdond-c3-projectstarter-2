@@ -41,7 +41,7 @@
     path: "{{ installation_directory }}"
     owner: "{{ app_user }}"
     group: "{{ app_user }}"
-    mode: '0750'
+    mode: '0755'
 
 - name: copy archive
   become: True
@@ -50,16 +50,18 @@
     dest: "{{ installation_directory }}"
     owner: "{{ app_user }}"
     group: "{{ app_user }}"
-    mode: '0750'
+    mode: '0755'
 
 - name: install npm {{ npm_version }}
   become: True
   shell: npm install -g n && n {{ npm_version }}
   args:
     chdir: "{{ installation_directory }}"
-    
+
 - name: start pm2
   become: True
-  shell: pm2 start npm --name backend -- start
+  shell: pm2 start npm --name backend -- run start
   args:
     chdir: "{{ installation_directory }}"
+
+    apt list --upgradable
