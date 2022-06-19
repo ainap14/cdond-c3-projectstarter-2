@@ -64,4 +64,4 @@
   args:
     chdir: "{{ installation_directory }}"
 
-    apt list --upgradable
+    # apt list --upgradable
