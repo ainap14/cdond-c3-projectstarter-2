@@ -13,6 +13,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -34,6 +35,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - destroy-environment
 
   build-backend:
     docker:
@@ -51,6 +53,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - destroy-environment
 
   scan-frontend:
     docker:
@@ -64,7 +67,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix
+            npm audit --audit-level=critical fix
             npm audit --audit-level=critical
 
   scan-backend:
@@ -79,6 +82,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit --audit-level=critical fix
             npm audit --audit-level=critical
 
   deploy-infrastructure:
@@ -114,9 +118,11 @@ jobs:
             echo [web] > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
+              --filters "Name=tag:project,Values=udapeople Name=instance-state-name,Values=running" \
               --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
+      
+      - destroy-environment
 
       - persist_to_workspace:
           root: ~/
@@ -151,7 +157,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure  
-
+      - destroy-environment
   run-migrations:
     docker:
     # previous docker version 13.8.0 
@@ -174,7 +180,7 @@ jobs:
                   curl https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
               fi
      # Here's where you will add some code to rollback on failure 
-
+      - destroy-environment
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI (amazon/aws-cli)
@@ -193,7 +199,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople Name=instance-state-name,Values=running" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -237,13 +243,13 @@ jobs:
             npm i
             npm run build
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
+            tar -C backend -czvf artifact-backend.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
-      #- destroy-environment
+      - destroy-environment
 
   smoke-test:
     docker:
@@ -262,7 +268,7 @@ jobs:
           name: Get backend url and smoke test
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople Name=instance-state-name,Values=running" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -286,7 +292,7 @@ jobs:
               exit 1
             fi
       # Here's where you will add some code to rollback on failure  
-
+      - destroy-environment
 
   test-backend:
     docker:
@@ -301,6 +307,7 @@ jobs:
             cd backend
             npm install
             npm run test
+      - destroy-environment
 
   test-frontend:
     docker:
@@ -315,6 +322,7 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - destroy-environment
 
   deploy-slack:
     executor:

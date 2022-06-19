@@ -12,36 +12,13 @@
     state: latest
     update_cache: yes
 
-- name: copy packahe.json to /home/ubuntu directory
-  copy:
-    src: ../../backend/package.json
-    dest: /home/ubuntu
-    owner: ubuntu
-    group: ubuntu
-    mode: '0755'
-
 - name: install pm2
   become: True
   npm:
     name: pm2
     global: yes
     production: "{{ environment == 'prod' | bool }}"
-
-- name: install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
     state: present
-
-- name: start app
-  become: true
-  shell: |
-    cd /home/ubuntu/backend/dist
-    pm2 stop default
-    pm2 start npm --name 'udapeople' -- start
-    pm2 ls
     
 - name: create install dir
   become: True
@@ -55,7 +32,7 @@
 - name: copy archive
   become: True
   unarchive:
-    src: ../../artifact.tar.gz
+    src: ../../artifact-backend.tar.gz
     dest: "{{ installation_directory }}"
     owner: "{{ app_user }}"
     group: "{{ app_user }}"
@@ -67,8 +44,17 @@
   args:
     chdir: "{{ installation_directory }}"
 
-- name: start pm2
-  become: True
-  shell: pm2 start npm --name backend -- run start
+# - name: start pm2
+#   become: True
+#   shell: pm2 start npm --name backend -- run start
+#   args:
+#     chdir: "{{ installation_directory }}"
+
+- name: start app
+  become: true
+  shell: |
+    pm2 stop default
+    pm2 start npm --name 'udapeople' -- start
+    pm2 ls
   args:
-    chdir: "{{ installation_directory }}"
+    chdir: "{{ app_user_dir }}/backend/dist"
