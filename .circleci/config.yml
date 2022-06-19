@@ -432,16 +432,15 @@ jobs:
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
       - destroy-environment
-      - revert-migrations           
+      - revert-migrations          
 
-
-    - run:
-        name: Remove old stacks and files
-        command: |
-          if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-          then
-            # your code here
-          fi
+      # - run:
+      #     name: Remove old stacks and files
+      #     command: |
+      #       if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+      #       then
+      #         # your code here
+      #       fi
 
 workflows:
   default:
