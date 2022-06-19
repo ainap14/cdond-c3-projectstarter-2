@@ -1,34 +1,23 @@
-- name: Copy backend app
-  become: true
-  copy:
-    src: ../../backend
-    dest: /home/ubuntu
-    owner: ubuntu
-    group: ubuntu
-    mode: '0750'
-    directory_mode: yes
-
-#- name: Change folder permissions
-#  become: true
-#  shell: |
-#    chown -R ubuntu:ubuntu /home/ubuntu/backend
-
-#- name: to update the apt packages
-#  become: true
-#  apt:
-#    update_cache: yes
-
-#- name: upgrade packages
-#  become: true
-#  apt:
-#    upgrade: yes
+- name: create application user
+  become: True
+  user:
+    name: "{{ app_user }}"
 
 - name: install dependencies
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
+  become: True
+  package:
+    name:
+      - nodejs
+      - npm
     state: latest
     update_cache: yes
+
+- name: install pm2
+  become: True
+  npm:
+    name: pm2
+    global: yes
+    production: "{{ environment == 'prod' | bool }}"
 
 - name: install pm2
   become: true
@@ -44,3 +33,33 @@
     pm2 stop default
     pm2 start npm --name 'udapeople' -- start
     pm2 ls
+    
+- name: create install dir
+  become: True
+  file:
+    state: directory
+    path: "{{ installation_directory }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0750'
+
+- name: copy archive
+  become: True
+  unarchive:
+    src: ../../artifact.tar.gz
+    dest: "{{ installation_directory }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0750'
+
+- name: install npm {{ npm_version }}
+  become: True
+  shell: npm install -g n && n {{ npm_version }}
+  args:
+    chdir: "{{ installation_directory }}"
+    
+- name: start pm2
+  become: True
+  shell: pm2 start npm --name backend -- start
+  args:
+    chdir: "{{ installation_directory }}"

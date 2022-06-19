@@ -1,1 +1,5 @@
-installation_directory: /opt/application
+#installation_directory: /opt/application
+app_user: app
+app_user_dir: /home/{{ app_user }}/
+installation_directory: "{{ app_user_dir }}/backend"
+npm_version: 18.4.0
