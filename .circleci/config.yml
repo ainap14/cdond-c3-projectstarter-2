@@ -407,8 +407,8 @@ jobs:
       # Checkout code from git
       - checkout
       - run: yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
+      # - attach_workspace:
+      #     at: ~/
       - run:
           name: Get old stack workflow id
           command: |
@@ -419,12 +419,20 @@ jobs:
             --no-paginate --output text)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-
+      - run:
+          name: Fetch the stack names
+          command: |
             # Fetch the stack names 
 
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \ #put the list of stacks here
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \ 
             echo Stack names: "${STACKS[@]}"
-
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - textfile.txt 
+      - run:
+          name: remove old stacks
+          command: |
             #remove old stacks
             
             echo that's the OldWorkflowID: "${OldWorkflowID}"
