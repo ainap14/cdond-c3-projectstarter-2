@@ -315,6 +315,11 @@ jobs:
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
             if curl "${API_URL}/api/status" | grep -q "ok"
+            then
+              exit 0
+            else
+              exit 1
+            fi
           # echo "Couldn't get app to work, so making this task pass anyway"
    
       - run:
