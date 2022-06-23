@@ -278,6 +278,10 @@ jobs:
             pip3 install awscli
       
       - run:
+          name: install open ssh
+          command: apk add openssh-client
+      
+      - run:
           name: Deploy backend
           command: |
             pwd
