@@ -152,7 +152,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople" "Name=instance-state-name,Values=running" \
               --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-            pwd
+
 
       - destroy-environment
 
