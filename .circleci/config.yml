@@ -290,7 +290,6 @@ jobs:
             npm i
             npm run build
             cd ..
-            pwd
             tar -C backend -czvf artifact-backend.tar.gz .
             chmod 644 artifact-backend.tar.gz
             cd .circleci/ansible
