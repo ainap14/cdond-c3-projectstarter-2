@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.0.2
+  # node: circleci/node@5.0.2
   slack: circleci/slack@4.1
 
 commands:
@@ -154,7 +154,8 @@ jobs:
               --filters "Name=tag:project,Values=udapeople" "Name=instance-state-name,Values=running" \
               --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-      
+            pwd
+
       - destroy-environment
 
       - persist_to_workspace:
@@ -273,17 +274,24 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            apk add --update tar gzip ansible nodejs npm curl jq nginx
             apk add --update ansible npm nodejs
             apk update pip3
             pip3 install awscli
+
+      - run:
+          name: install openssh
+          command: apk add openssh-client         
       - run:
           name: Deploy backend
           command: |
+            pwd
             cd backend
             npm i
             npm run build
             cd ..
             tar -C backend -czvf artifact-backend.tar.gz .
+            chmod 644 /etc/artifact.tar.gz
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
