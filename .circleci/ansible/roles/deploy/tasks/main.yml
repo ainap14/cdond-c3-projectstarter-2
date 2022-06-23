@@ -50,11 +50,27 @@
 #   args:
 #     chdir: "{{ installation_directory }}"
 
-- name: start app
-  become: true
+# - name: start app
+#   become: true
+#   shell: |
+#     pm2 stop default
+#     pm2 start npm --name 'udapeople' -- start
+#     pm2 ls
+#   args:
+#     chdir: "{{ app_user_dir }}/backend/dist"
+
+- name: unarchive artifacts
+  become_user: true
+  unarchive:
+    src: /etc/artifact.tar.gz
+    dest: ~/
+
+- name: start the app
+  become_user: true
   shell: |
+    ls -la
+    cd ~/backend/
+    ls -la
+    npm i
     pm2 stop default
-    pm2 start npm --name 'udapeople' -- start
-    pm2 ls
-  args:
-    chdir: "{{ app_user_dir }}/backend/dist"
+    pm2 start npm -- start
