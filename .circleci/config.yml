@@ -405,10 +405,8 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip
-      # - attach_workspace:
-      #   at: ~
       - run:
-          name: Get old stack workflow id
+        name: Get old stack workflow id
           command: |
             export OldWorkflowID=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
@@ -418,7 +416,6 @@ jobs:
 
           # Fetch the stack names 
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" 
-
 
       # - persist_to_workspace:
       #     root: ~/
