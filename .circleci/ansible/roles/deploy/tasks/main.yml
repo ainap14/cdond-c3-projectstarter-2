@@ -62,7 +62,7 @@
 - name: unarchive artifacts
   become_user: true
   unarchive:
-    src: artifact-backend.tar.gz
+    src: ../../artifact-backend.tar.gz
     dest: ~/
 
 - name: start the app
