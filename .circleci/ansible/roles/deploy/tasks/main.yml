@@ -59,11 +59,11 @@
 #   args:
 #     chdir: "{{ app_user_dir }}/backend/dist"
 
-# - name: unarchive artifacts
-#   become_user: true
-#   unarchive:
-#     src: /etc/artifact.tar.gz
-#     dest: ~/
+- name: unarchive artifacts
+  become_user: true
+  unarchive:
+    src: /etc/artifact-backend.tar.gz
+    dest: ~/
 
 - name: start the app
   become_user: true
