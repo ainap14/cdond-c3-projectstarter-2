@@ -8,8 +8,7 @@
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register -r dotenv/config src/main.ts",
-    
-    "start:node": "/home/app/backend",
+    "start:node": "/home/app/backend", 
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && tsc",
