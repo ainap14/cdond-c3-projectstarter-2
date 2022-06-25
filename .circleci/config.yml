@@ -19,19 +19,23 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   revert-migrations:
-    # parameters:
-    #   # workflow_id:
-    #   #   type: string
+    description: This will revert last migration that ran
+    parameters:
+      workflow_id:
+        type: string 
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
     steps:
       - run:
-          name: Revert Migrations
+          name: Revert migration
           when: on_fail
           command: |
-            SUCCESS=$(curl -k https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/migration_$\{CIRCLE_WORKFLOW_ID:0:7\} )
-            if(( $SUCCESS==1 )); 
+            # Your Memstash or kvdb.io GET URL code goes here
+            # Example: kvdb.io
+            SUCCESS=$(curl --insecure https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/migration_<< parameters.workflow_id >>)
+            if (( $SUCCESS == 1 ));
             then
               cd ~/project/backend
-              npm i
+              npm install
               npm run migrations:revert
             fi
 
@@ -312,47 +316,60 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
-      - image: circleci/node:14.18.1
+      - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
       - checkout
+      - attach_workspace:
+            at: ~/
       - run:
           name: Install dependencies
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+            # your code here
+            apk add --update curl npm tar gzip nodejs
+            pip install awscli
+            
       - run:
-          name: Get backend url and smoke test
+          name: Get backend url
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" "Name=instance-state-name,Values=running" --output text)
-            API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL=${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
-            if curl "${API_URL}/api/status" | grep -q "ok"
+            # Fetch and prepare the BACKEND_IP env var
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+
+      - run:
+          name: Backend smoke test.
+          command: |
+            # your code here
+            export BACKEND_IP=$(curl --insecure  https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/backend_api_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $BACKEND_IP
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+
+            if curl "${API_URL}/api/status"
             then
-              exit 0
+              return 0
+              echo "Smoke Test success"
             else
-              exit 1
+              return 1
             fi
-          # echo "Couldn't get app to work, so making this task pass anyway"
-   
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-            echo ${URL}
+            # your code here
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+            # Change this to 0 after the job fails
+            return 0
+            echo "Smoke Test Success"
             else
-              exit 1
+            return 1
             fi
       # Here's where you will add some code to rollback on failure  
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migration
 
   test-backend:
     docker:

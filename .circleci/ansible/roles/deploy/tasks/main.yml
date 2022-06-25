@@ -1,71 +1,11 @@
-- name: create application user
-  become: True
-  user:
-    name: "{{ app_user }}"
-
-- name: install dependencies
-  become: True
-  package:
-    name:
-      - nodejs
-      - npm
-    state: latest
-    update_cache: yes
-
-- name: install pm2
-  become: True
-  npm:
-    name: pm2
-    global: yes
-    production: "{{ environment == 'prod' | bool }}"
-    state: present
-    
-- name: create install dir
-  become: True
-  file:
-    state: directory
-    path: "{{ installation_directory }}"
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
-    mode: '0755'
-
-- name: copy archive
-  become: True
-  unarchive:
-    src: ../../artifact-backend.tar.gz
-    dest: "{{ installation_directory }}"
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
-    mode: '0755'
-
-- name: install npm {{ npm_version }}
-  become: True
-  shell: npm install -g n && n {{ npm_version }}
-  args:
-    chdir: "{{ installation_directory }}"
-
-# - name: start pm2
-#   become: True
-#   shell: pm2 start npm --name backend -- run start
-#   args:
-#     chdir: "{{ installation_directory }}"
-
-# - name: start app
-#   become: true
-#   shell: |
-#     pm2 stop default
-#     pm2 start npm --name 'udapeople' -- start
-#     pm2 ls
-#   args:
-#     chdir: "{{ app_user_dir }}/backend/dist"
-
-- name: unarchive artifacts
+---
+- name: "deploy backend"
   become_user: true
   unarchive:
     src: ../../artifact-backend.tar.gz
     dest: ~/
 
-- name: start the app
+- name: "run backend"
   become_user: true
   shell: |
     ls -la
