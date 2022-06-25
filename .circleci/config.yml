@@ -341,17 +341,16 @@ jobs:
           name: Backend smoke test.
           command: |
             # your code here
-            export BACKEND_IP=$(curl --insecure  https://kvdb.io/9ad179kyNWDqcyuH5LG9Cc/backend_api_${CIRCLE_WORKFLOW_ID:0:7})
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" "Name=instance-state-name,Values=running" --output text)
             echo $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
 
             if curl "${API_URL}/api/status"
             then
-              return 0
-              echo "Smoke Test success"
+              exit 0
             else
-              return 1
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -362,10 +361,9 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
             # Change this to 0 after the job fails
-            return 0
-            echo "Smoke Test Success"
+              exit 0
             else
-            return 1
+              exit 1
             fi
       # Here's where you will add some code to rollback on failure  
       - destroy-environment
@@ -492,8 +490,10 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [scan-frontend, scan-backend]
+      - deploy-frontend-infrastructure:
+          requires: [scan-frontend]
+      - deploy-backend-infrastructure:
+          requires: [scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
