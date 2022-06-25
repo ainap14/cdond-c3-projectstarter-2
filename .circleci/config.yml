@@ -43,7 +43,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: 
+            - frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Build frontend
           command: |
@@ -52,7 +53,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
   build-backend:
@@ -61,7 +62,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: 
+            - backend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Build backend
           command: |
@@ -70,7 +72,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
   scan-frontend:
@@ -79,13 +81,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: 
+            - frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
-          name: frontend scan
+          name: Scan frontend
           command: |
+            #your code goes here
             cd frontend
             npm install
-            npm audit --audit-level=critical fix
+            # npm install oauth-sign@^0.9.0
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
 
   scan-backend:
@@ -94,14 +99,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: 
+            - backend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
-          name: backend scan
+          name: Scan backend
           command: |
+            #your code goes here
             cd backend
             npm install
-            npm audit --audit-level=critical fix
-            npm audit --audit-level=critical
+            # npm install oauth-sign@^0.9.0
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical
 
   deploy-frontend-infrastructure:
     docker:
@@ -182,6 +190,7 @@ jobs:
           command: |
             # install the dependencies needed for your playbook
             apk add --update ansible
+            pip3 install awscli
 
       - run:
           name: Configure server
@@ -351,7 +360,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: 
+            - backend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: backend test
           command: |
@@ -366,7 +376,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: 
+            - frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: frontend test
           command: |
