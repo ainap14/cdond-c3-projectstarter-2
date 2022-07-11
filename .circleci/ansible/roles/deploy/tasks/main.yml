@@ -23,10 +23,16 @@
     mode: 0755
 
 - name: copy backend files
-  become: yes
-  copy:
-    src: ~/project/artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
+  become_user: true
+  unarchive:
+    src: ../../artifact-backend.tar.gz
+    dest: ~/backend/artifact-backend.tar.gz
+
+# - name: copy backend files
+#   become: yes
+#   copy:
+#     src: ~/project/artifact.tar.gz
+#     dest: ~/backend/artifact.tar.gz
 
 - name: unpack backend files
   become: yes
@@ -34,7 +40,7 @@
     cd ~/backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
-    
+
 - name: start app 
   become: yes
   shell: |
