@@ -38,7 +38,7 @@
   become: yes
   shell: |
     cd ~/backend
-    tar -vxf artifact-backend.tar.gz
+    tar -xvf artifact-backend.tar.gz
     rm -f artifact-backend.tar.gz
 
 - name: place .env file
@@ -61,6 +61,6 @@
     cd ~/backend
     npm install
     pm2 stop default
-    pm2 start npm -- start
+    pm2 start npm --name 'udapeople' -- start
     cd dist
     pm2 start main.js --update-env
