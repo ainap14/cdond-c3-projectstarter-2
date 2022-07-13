@@ -60,7 +60,8 @@
     TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
   template:
     src: env
-    dest: ~/backend/.env
+    # dest: ~/backend/.env
+    dest: /home/ubuntu/backend/.env
     mode: '0700'
 
 
