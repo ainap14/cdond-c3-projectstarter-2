@@ -97,5 +97,6 @@
     ls
     cd dist
     pm2 start npm --name 'udapeople' -- start
+    pm2 start main.js --update-env
   args:
     chdir: /home/ubuntu/backend/
