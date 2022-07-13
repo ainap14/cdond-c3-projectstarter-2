@@ -18,7 +18,8 @@
 - name: create backend directory
   become: yes
   file:
-    path: ~/backend
+    # path: ~/backend
+    path: /home/ubuntu/backend/
     state: directory
     owner: ubuntu
     group: ubuntu
@@ -33,16 +34,19 @@
 - name: copy backend files
   become: yes
   copy:
-    src: ~/project/artifact-backend.tar.gz
-    dest: ~/backend/artifact-backend.tar.gz
+    # src: ~/project/artifact-backend.tar.gz
+    # dest: ~/backend/artifact-backend.tar.gz
+    src: /root/project/artifact-backend.tar.gz
+    dest: /home/ubuntu/backend/
     owner: ubuntu
     group: ubuntu
     mode: 0755
 
 - name: unpack backend files
   become: yes
+      # cd ~/backend
   shell: |
-    cd ~/backend
+    cd /home/ubuntu/backend/
     tar -xvf artifact-backend.tar.gz
     rm -f artifact-backend.tar.gz
 
@@ -70,6 +74,13 @@
 #     cd dist
 #     pm2 start main.js --update-env
 
+- name: "Install nodejs and npm."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
 - name: "Install pm2."
   become: true
   npm:
@@ -78,11 +89,6 @@
     production: yes
     state: present
 
-- name: "Build package"
-  become: true
-  command: npm run build
-  args:
-    chdir: /home/ubuntu/backend
     
 - name: "Start server"
   become: true
