@@ -210,8 +210,8 @@ jobs:
 
   run-migrations:
     docker:
-    # previous docker version 13.8.0 
-      - image: circleci/node:14.18.1 
+    # previous docker version 14.18.1  
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
@@ -238,7 +238,7 @@ jobs:
               fi
      # Here's where you will add some code to rollback on failure 
       - destroy-environment      
-      - revert-migrations
+      # - revert-migrations
 
   deploy-frontend:
     docker:
