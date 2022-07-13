@@ -62,6 +62,8 @@
     src: env
     # dest: ~/backend/.env
     dest: /home/ubuntu/backend/.env
+    owner: ubuntu
+    group: ubuntu
     mode: '0700'
 
 
