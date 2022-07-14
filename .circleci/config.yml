@@ -471,22 +471,22 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
 
-      # - persist_to_workspace:
-      #     root: ~/
-      #     paths: 
-      #       - textfile.txt 
-      # - run:
-      #     name: remove old stacks
-      #     command: |
-      #       #remove old stacks
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - textfile.txt 
+      - run:
+          name: remove old stacks
+          command: |
+            #remove old stacks
             
-      #       echo that's the OldWorkflowID: "${OldWorkflowID}"
-      #       if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-      #       then
-      #       aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-      #       aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-      #       aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-      #       fi
+            echo that's the OldWorkflowID: "${OldWorkflowID}"
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+            aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            fi
       - destroy-environment
       - revert-migrations          
 
