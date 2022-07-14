@@ -452,47 +452,29 @@ jobs:
       - destroy-environment       
       - revert-migrations
 
-  cleanup:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run: yum install -y tar gzip
-      # - attach_workspace:
-      #   at: ~
-      - run:
-          name: Get old stack workflow id
-          command: |
-            # get old workflowid
+  # cleanup:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run: yum install -y tar gzip
+ 
+  #     - run:
+  #         name: Get old stack workflow id and remove old stacks and empty s3 bucket
+  #         command: |
+  #           export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+  #           echo OldWorkflowID: "${OldWorkflowID}"
+  #           echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
 
-            export OldWorkflowID=$(aws cloudformation \
-            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --no-paginate --output text)
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-
-      # - persist_to_workspace:
-          # root: ~/
-          # paths: 
-          #   - textfile.txt 
-      - run:
-          name: remove old stacks
-          command: |
-            
-            echo that's the OldWorkflowID: "${OldWorkflowID}"
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              echo "------------------Delete Confirmed----------------------------"
-              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            
-            else
-              echo "------------------Delete Failed----------------------------"
-
-            fi
-      - destroy-environment
-      - revert-migrations          
+  #           if [ -n "${OldWorkflowID}" ]; then
+  #             echo "------------------Delete Confirmed----------------------------"
+  #             echo "s3://${OldWorkflowID}"
+  #             aws s3 rm "s3://${OldWorkflowID}" --recursive
+  #             aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+  #             aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+  #           else
+  #             echo "------------------Delete Failed----------------------------"
+  #           fi         
 
 
 workflows:
@@ -524,8 +506,8 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - cleanup:
+      #     requires: [cloudfront-update]
 
   deploy_and_notify:
     jobs:
