@@ -1,19 +1,3 @@
-# ---
-# - name: "deploy backend"
-#   become_user: true
-#   unarchive:
-#     src: ../../artifact-backend.tar.gz
-#     dest: ~/
-
-# - name: "run backend"
-#   become_user: true
-#   shell: |
-#     ls -la
-#     cd ~/backend/
-#     ls -la
-#     npm i
-#     pm2 stop default
-#     pm2 start npm -- start
 
 - name: create backend directory
   become: yes
@@ -23,19 +7,11 @@
     state: directory
     mode: '0755'
 
-# - name: copy backend files
-#   become_user: true
-#   unarchive:
-#     src: ../../artifact-backend.tar.gz
-#     dest: ~/backend/artifact-backend.tar.gz
-
 - name: copy backend files
   become: yes
   copy:
     src: ~/project/artifact-backend.tar.gz
     dest: ~/backend/artifact-backend.tar.gz
-    # src: /root/project/artifact-backend.tar.gz
-    # dest: /home/ubuntu/backend/
     mode: 0755
 
 - name: unpack backend files
@@ -69,29 +45,3 @@
     cd dist
     pm2 start main.js --update-env
 
-# - name: "Install nodejs and npm."
-#   become: true
-#   apt:
-#     name: ["nodejs", "npm"]
-#     state: latest
-#     update_cache: yes
-
-# - name: "Install pm2."
-#   become: true
-#   npm:
-#     name: pm2
-#     global: yes
-#     production: yes
-#     state: present
-
-    
-# - name: "Start server"
-#   become: true
-#   shell: |
-#     pwd
-#     ls
-#     cd dist
-#     pm2 start npm --name 'udapeople' -- start
-#     pm2 start main.js --update-env
-#   args:
-#     chdir: /home/ubuntu/backend/

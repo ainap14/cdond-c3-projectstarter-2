@@ -25,7 +25,7 @@ Resources:
         Enabled: True
         DefaultRootObject: index.html
         DefaultCacheBehavior:
-          # # Adding Managed Cache Policy for Disabled Cache ( Overcome EC2 IP change issue )
+          # Adding Managed Cache Policy for Disabled Cache ( This is to fix the issue with IP change of the  EC2 instance )
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           ForwardedValues:
             QueryString: False
