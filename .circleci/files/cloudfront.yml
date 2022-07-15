@@ -6,9 +6,7 @@ Parameters:
     Description: Unique identifier.
     Type: String
 
-
 Resources:
-  
   CloudFrontOriginAccessIdentity:
     Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
     Properties:
@@ -20,13 +18,15 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "udapeople-${WorkflowID}.s3.amazonaws.com"
+          - DomainName: !Sub "${WorkflowID}.s3.amazonaws.com"
             Id: webpage
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
         Enabled: True
         DefaultRootObject: index.html
         DefaultCacheBehavior:
+          # Adding Managed Cache Policy for Disabled Cache ( This is to fix the issue with IP change of the  EC2 instance )
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           ForwardedValues:
             QueryString: False
           TargetOriginId: webpage
