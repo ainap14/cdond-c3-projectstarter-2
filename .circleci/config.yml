@@ -1,7 +1,7 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.2
-  slack: circleci/slack@4.1
+# orbs:
+#   node: circleci/node@5.0.2
+#   slack: circleci/slack@4.1
 
 commands:
   destroy-environment:
@@ -509,6 +509,6 @@ workflows:
       # - cleanup:
       #     requires: [cloudfront-update]
 
-  deploy_and_notify:
-    jobs:
-      - deploy-slack
+  # deploy_and_notify:
+  #   jobs:
+  #     - deploy-slack
